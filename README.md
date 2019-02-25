@@ -37,6 +37,10 @@ $message = $headers->addToMessage($message);
 $headers->toArray();
 ```
 
+## What are HTTP headers?
+
+https://github.com/sunrise-php/http-header-kit
+
 ## Test run
 
 ```bash
