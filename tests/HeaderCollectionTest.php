@@ -41,9 +41,11 @@ class HeaderCollectionTest extends TestCase
 	 */
 	public function testConstructorWithHeaders() : void
 	{
-		$headers[] = new FakeHeaderTest('x-foo', 'foo');
-		$headers[] = new FakeHeaderTest('x-bar', 'bar');
-		$headers[] = new FakeHeaderTest('x-baz', 'baz');
+		$headers = [
+			new FakeHeaderTest('x-foo', 'foo'),
+			new FakeHeaderTest('x-bar', 'bar'),
+			new FakeHeaderTest('x-baz', 'baz'),
+		];
 
 		$collection = new HeaderCollection($headers);
 
@@ -55,10 +57,12 @@ class HeaderCollectionTest extends TestCase
 	 */
 	public function testAdd() : void
 	{
-		$headers[] = new FakeHeaderTest('x-foo', 'foo');
-		$headers[] = new FakeHeaderTest('x-bar', 'bar');
-		$headers[] = new FakeHeaderTest('x-baz', 'baz');
-		$headers[] = new FakeHeaderTest('x-qux', 'qux');
+		$headers = [
+			new FakeHeaderTest('x-foo', 'foo'),
+			new FakeHeaderTest('x-bar', 'bar'),
+			new FakeHeaderTest('x-baz', 'baz'),
+			new FakeHeaderTest('x-qux', 'qux'),
+		];
 
 		$collection = new HeaderCollection([
 			$headers[0],
@@ -76,8 +80,10 @@ class HeaderCollectionTest extends TestCase
 	 */
 	public function testSetToMessage() : void
 	{
-		$headers[] = new FakeHeaderTest('x-foo', 'foo');
-		$headers[] = new FakeHeaderTest('x-foo', 'bar');
+		$headers = [
+			new FakeHeaderTest('x-foo', 'foo'),
+			new FakeHeaderTest('x-foo', 'bar'),
+		];
 
 		$collection = new HeaderCollection($headers);
 
@@ -97,8 +103,10 @@ class HeaderCollectionTest extends TestCase
 	 */
 	public function testAddToMessage() : void
 	{
-		$headers[] = new FakeHeaderTest('x-foo', 'foo');
-		$headers[] = new FakeHeaderTest('x-foo', 'bar');
+		$headers = [
+			new FakeHeaderTest('x-foo', 'foo'),
+			new FakeHeaderTest('x-foo', 'bar'),
+		];
 
 		$collection = new HeaderCollection($headers);
 
@@ -112,6 +120,40 @@ class HeaderCollectionTest extends TestCase
 			],
 			$message->getHeader($headers[0]->getFieldName())
 		);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testToEmptyArray() : void
+	{
+		$collection = new HeaderCollection();
+
+		$this->assertEquals([], $collection->toArray());
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testToArray() : void
+	{
+		$expected = [
+			'x-foo' => ['foo'],
+			'x-bar' => ['bar.1', 'bar.2', 'bar.3'],
+			'x-baz' => ['baz'],
+			'x-qux' => ['qux'],
+		];
+
+		$collection = new HeaderCollection([
+			new FakeHeaderTest('x-foo', 'foo'),
+			new FakeHeaderTest('x-bar', 'bar.1'),
+			new FakeHeaderTest('x-bar', 'bar.2'),
+			new FakeHeaderTest('x-baz', 'baz'),
+			new FakeHeaderTest('x-bar', 'bar.3'),
+			new FakeHeaderTest('x-qux', 'qux'),
+		]);
+
+		$this->assertEquals($expected, $collection->toArray());
 	}
 
 	/**
@@ -141,9 +183,11 @@ class HeaderCollectionTest extends TestCase
 	 */
 	public function testGetCount() : void
 	{
-		$headers[] = new FakeHeaderTest('x-foo', 'foo');
-		$headers[] = new FakeHeaderTest('x-bar', 'bar');
-		$headers[] = new FakeHeaderTest('x-baz', 'baz');
+		$headers = [
+			new FakeHeaderTest('x-foo', 'foo'),
+			new FakeHeaderTest('x-bar', 'bar'),
+			new FakeHeaderTest('x-baz', 'baz'),
+		];
 
 		$collection = new HeaderCollection($headers);
 

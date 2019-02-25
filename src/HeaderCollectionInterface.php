@@ -55,4 +55,11 @@ interface HeaderCollectionInterface extends Countable, IteratorAggregate
 	 * @link https://www.php-fig.org/psr/psr-7/
 	 */
 	public function addToMessage(MessageInterface $message) : MessageInterface;
+
+	/**
+	 * Converts the collection to array
+	 *
+	 * @return array
+	 */
+	public function toArray() : array;
 }

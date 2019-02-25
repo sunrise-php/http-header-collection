@@ -84,6 +84,24 @@ class HeaderCollection implements HeaderCollectionInterface
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function toArray() : array
+	{
+		$headers = [];
+
+		foreach ($this->headers as $header)
+		{
+			$name = $header->getFieldName();
+			$value = $header->getFieldValue();
+
+			$headers[$name][] = $value;
+		}
+
+		return $headers;
+	}
+
+	/**
 	 * Gets the number of headers in the collection
 	 *
 	 * @return int
