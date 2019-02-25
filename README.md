@@ -32,6 +32,9 @@ $message = $headers->setToMessage($message);
 
 // Adds the collection to the PSR-7 message
 $message = $headers->addToMessage($message);
+
+// Converts the collection to an array
+$headers->toArray();
 ```
 
 ## Test run
