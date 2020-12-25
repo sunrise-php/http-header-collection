@@ -25,41 +25,41 @@ use Sunrise\Http\Header\HeaderInterface;
 interface HeaderCollectionInterface extends Countable, IteratorAggregate
 {
 
-	/**
-	 * Adds the given header to the collection
-	 *
-	 * @param HeaderInterface $header
-	 *
-	 * @return void
-	 */
-	public function add(HeaderInterface $header) : void;
+    /**
+     * Adds the given header to the collection
+     *
+     * @param HeaderInterface $header
+     *
+     * @return void
+     */
+    public function add(HeaderInterface $header) : void;
 
-	/**
-	 * Sets the collection headers to the given message
-	 *
-	 * @param MessageInterface $message
-	 *
-	 * @return MessageInterface
-	 *
-	 * @link https://www.php-fig.org/psr/psr-7/
-	 */
-	public function setToMessage(MessageInterface $message) : MessageInterface;
+    /**
+     * Sets the collection headers to the given message
+     *
+     * @param MessageInterface $message
+     *
+     * @return MessageInterface
+     *
+     * @link https://www.php-fig.org/psr/psr-7/
+     */
+    public function setToMessage(MessageInterface $message) : MessageInterface;
 
-	/**
-	 * Adds the collection headers to the given message
-	 *
-	 * @param MessageInterface $message
-	 *
-	 * @return MessageInterface
-	 *
-	 * @link https://www.php-fig.org/psr/psr-7/
-	 */
-	public function addToMessage(MessageInterface $message) : MessageInterface;
+    /**
+     * Adds the collection headers to the given message
+     *
+     * @param MessageInterface $message
+     *
+     * @return MessageInterface
+     *
+     * @link https://www.php-fig.org/psr/psr-7/
+     */
+    public function addToMessage(MessageInterface $message) : MessageInterface;
 
-	/**
-	 * Converts the collection to array
-	 *
-	 * @return array
-	 */
-	public function toArray() : array;
+    /**
+     * Converts the collection to array
+     *
+     * @return array
+     */
+    public function toArray() : array;
 }

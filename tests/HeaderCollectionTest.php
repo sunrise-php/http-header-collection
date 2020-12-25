@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Sunrise\Http\Header\Tests;
 
@@ -10,9 +10,9 @@ use Countable;
 use IteratorAggregate;
 use Traversable;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\MessageInterface;
 use Sunrise\Http\Header\HeaderCollection;
 use Sunrise\Http\Header\HeaderCollectionInterface;
-use Sunrise\Http\Message\ResponseFactory;
 
 /**
  * Import functions
@@ -26,181 +26,200 @@ use function iterator_to_array;
 class HeaderCollectionTest extends TestCase
 {
 
-	/**
-	 * @return void
-	 */
-	public function testConstructor() : void
-	{
-		$collection = new HeaderCollection();
+    /**
+     * @return void
+     */
+    public function testConstructor() : void
+    {
+        $collection = new HeaderCollection();
 
-		$this->assertInstanceOf(HeaderCollectionInterface::class, $collection);
-	}
+        $this->assertInstanceOf(HeaderCollectionInterface::class, $collection);
+    }
 
-	/**
-	 * @return void
-	 */
-	public function testConstructorWithHeaders() : void
-	{
-		$headers = [
-			new FakeHeaderTest('x-foo', 'foo'),
-			new FakeHeaderTest('x-bar', 'bar'),
-			new FakeHeaderTest('x-baz', 'baz'),
-		];
+    /**
+     * @return void
+     */
+    public function testConstructorWithHeaders() : void
+    {
+        $headers = [
+            new Header('x-foo', 'foo'),
+            new Header('x-bar', 'bar'),
+            new Header('x-baz', 'baz'),
+        ];
 
-		$collection = new HeaderCollection($headers);
+        $collection = new HeaderCollection($headers);
 
-		$this->assertEquals($headers, iterator_to_array($collection));
-	}
+        $this->assertEquals($headers, iterator_to_array($collection));
+    }
 
-	/**
-	 * @return void
-	 */
-	public function testAdd() : void
-	{
-		$headers = [
-			new FakeHeaderTest('x-foo', 'foo'),
-			new FakeHeaderTest('x-bar', 'bar'),
-			new FakeHeaderTest('x-baz', 'baz'),
-			new FakeHeaderTest('x-qux', 'qux'),
-		];
+    /**
+     * @return void
+     */
+    public function testAdd() : void
+    {
+        $headers = [
+            new Header('x-foo', 'foo'),
+            new Header('x-bar', 'bar'),
+            new Header('x-baz', 'baz'),
+            new Header('x-qux', 'qux'),
+        ];
 
-		$collection = new HeaderCollection([
-			$headers[0],
-			$headers[1],
-		]);
+        $collection = new HeaderCollection([
+            $headers[0],
+            $headers[1],
+        ]);
 
-		$collection->add($headers[2]);
-		$collection->add($headers[3]);
+        $collection->add($headers[2]);
+        $collection->add($headers[3]);
 
-		$this->assertEquals($headers, iterator_to_array($collection));
-	}
+        $this->assertEquals($headers, iterator_to_array($collection));
+    }
 
-	/**
-	 * @return void
-	 */
-	public function testSetToMessage() : void
-	{
-		$headers = [
-			new FakeHeaderTest('x-foo', 'foo'),
-			new FakeHeaderTest('x-foo', 'bar'),
-		];
+    /**
+     * @return void
+     */
+    public function testSetToMessage() : void
+    {
+        $headers = [
+            new Header('x-foo', 'foo'),
+            new Header('x-foo', 'bar'),
+        ];
 
-		$collection = new HeaderCollection($headers);
+        $messageStub = $this->createMock(MessageInterface::class);
+        $messageStub->__headers = [];
 
-		$message = (new ResponseFactory)->createResponse();
-		$message = $collection->setToMessage($message);
+        $messageStub->method('withHeader')->will(
+            $this->returnCallback(function ($name, $value) use ($messageStub) {
+                $messageStub->__headers[$name] = [$value];
 
-		$this->assertEquals(
-			[
-				$headers[1]->getFieldValue(),
-			],
-			$message->getHeader($headers[0]->getFieldName())
-		);
-	}
+                return $messageStub;
+            })
+        );
 
-	/**
-	 * @return void
-	 */
-	public function testAddToMessage() : void
-	{
-		$headers = [
-			new FakeHeaderTest('x-foo', 'foo'),
-			new FakeHeaderTest('x-foo', 'bar'),
-		];
+        $messageStub->method('getHeader')->will(
+            $this->returnCallback(function ($name) use ($messageStub) {
+                return $messageStub->__headers[$name] ?? [];
+            })
+        );
 
-		$collection = new HeaderCollection($headers);
+        $messageStub = (new HeaderCollection($headers))->setToMessage($messageStub);
 
-		$message = (new ResponseFactory)->createResponse();
-		$message = $collection->addToMessage($message);
+        $expected = [$headers[1]->getFieldValue()];
+        $this->assertEquals($expected, $messageStub->getHeader($headers[0]->getFieldName()));
+    }
 
-		$this->assertEquals(
-			[
-				$headers[0]->getFieldValue(),
-				$headers[1]->getFieldValue(),
-			],
-			$message->getHeader($headers[0]->getFieldName())
-		);
-	}
+    /**
+     * @return void
+     */
+    public function testAddToMessage() : void
+    {
+        $headers = [
+            new Header('x-foo', 'foo'),
+            new Header('x-foo', 'bar'),
+        ];
 
-	/**
-	 * @return void
-	 */
-	public function testToEmptyArray() : void
-	{
-		$collection = new HeaderCollection();
+        $messageStub = $this->createMock(MessageInterface::class);
+        $messageStub->__headers = [];
 
-		$this->assertEquals([], $collection->toArray());
-	}
+        $messageStub->method('withAddedHeader')->will(
+            $this->returnCallback(function ($name, $value) use ($messageStub) {
+                $messageStub->__headers[$name][] = $value;
 
-	/**
-	 * @return void
-	 */
-	public function testToArray() : void
-	{
-		$expected = [
-			'x-foo' => ['foo'],
-			'x-bar' => ['bar.1', 'bar.2', 'bar.3'],
-			'x-baz' => ['baz'],
-			'x-qux' => ['qux'],
-		];
+                return $messageStub;
+            })
+        );
 
-		$collection = new HeaderCollection([
-			new FakeHeaderTest('x-foo', 'foo'),
-			new FakeHeaderTest('x-bar', 'bar.1'),
-			new FakeHeaderTest('x-bar', 'bar.2'),
-			new FakeHeaderTest('x-baz', 'baz'),
-			new FakeHeaderTest('x-bar', 'bar.3'),
-			new FakeHeaderTest('x-qux', 'qux'),
-		]);
+        $messageStub->method('getHeader')->will(
+            $this->returnCallback(function ($name) use ($messageStub) {
+                return $messageStub->__headers[$name] ?? [];
+            })
+        );
 
-		$this->assertEquals($expected, $collection->toArray());
-	}
+        $messageStub = (new HeaderCollection($headers))->addToMessage($messageStub);
 
-	/**
-	 * @return void
-	 */
-	public function testIsCountable() : void
-	{
-		$collection = new HeaderCollection();
+        $expected = [$headers[0]->getFieldValue(), $headers[1]->getFieldValue()];
+        $this->assertEquals($expected, $messageStub->getHeader($headers[0]->getFieldName()));
+    }
 
-		$this->assertInstanceOf(Countable::class, $collection);
-	}
+    /**
+     * @return void
+     */
+    public function testToEmptyArray() : void
+    {
+        $collection = new HeaderCollection();
 
-	/**
-	 * @return void
-	 */
-	public function testIsIterable() : void
-	{
-		$collection = new HeaderCollection();
+        $this->assertEquals([], $collection->toArray());
+    }
 
-		$this->assertInstanceOf(Traversable::class, $collection);
+    /**
+     * @return void
+     */
+    public function testToArray() : void
+    {
+        $expected = [
+            'x-foo' => ['foo'],
+            'x-bar' => ['bar.1', 'bar.2', 'bar.3'],
+            'x-baz' => ['baz'],
+            'x-qux' => ['qux'],
+        ];
 
-		$this->assertIsIterable($collection);
-	}
+        $collection = new HeaderCollection([
+            new Header('x-foo', 'foo'),
+            new Header('x-bar', 'bar.1'),
+            new Header('x-bar', 'bar.2'),
+            new Header('x-baz', 'baz'),
+            new Header('x-bar', 'bar.3'),
+            new Header('x-qux', 'qux'),
+        ]);
 
-	/**
-	 * @return void
-	 */
-	public function testGetCount() : void
-	{
-		$headers = [
-			new FakeHeaderTest('x-foo', 'foo'),
-			new FakeHeaderTest('x-bar', 'bar'),
-			new FakeHeaderTest('x-baz', 'baz'),
-		];
+        $this->assertEquals($expected, $collection->toArray());
+    }
 
-		$collection = new HeaderCollection($headers);
+    /**
+     * @return void
+     */
+    public function testIsCountable() : void
+    {
+        $collection = new HeaderCollection();
 
-		$this->assertCount(3, $collection);
-	}
+        $this->assertInstanceOf(Countable::class, $collection);
+    }
 
-	/**
-	 * @return void
-	 */
-	public function testGetIterator() : void
-	{
-		$collection = new HeaderCollection();
+    /**
+     * @return void
+     */
+    public function testIsIterable() : void
+    {
+        $collection = new HeaderCollection();
 
-		$this->assertInstanceOf(ArrayIterator::class, $collection->getIterator());
-	}
+        $this->assertInstanceOf(Traversable::class, $collection);
+
+        $this->assertIsIterable($collection);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetCount() : void
+    {
+        $headers = [
+            new Header('x-foo', 'foo'),
+            new Header('x-bar', 'bar'),
+            new Header('x-baz', 'baz'),
+        ];
+
+        $collection = new HeaderCollection($headers);
+
+        $this->assertCount(3, $collection);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetIterator() : void
+    {
+        $collection = new HeaderCollection();
+
+        $this->assertInstanceOf(ArrayIterator::class, $collection->getIterator());
+    }
 }
