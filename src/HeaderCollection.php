@@ -29,95 +29,90 @@ use function count;
 class HeaderCollection implements HeaderCollectionInterface
 {
 
-	/**
-	 * The collection headers
-	 *
-	 * @var HeaderInterface[]
-	 */
-	protected $headers = [];
+    /**
+     * The collection headers
+     *
+     * @var HeaderInterface[]
+     */
+    protected $headers = [];
 
-	/**
-	 * Constructor of the class
-	 *
-	 * @param HeaderInterface[] $headers
-	 */
-	public function __construct(iterable $headers = [])
-	{
-		foreach ($headers as $header)
-		{
-			$this->add($header);
-		}
-	}
+    /**
+     * Constructor of the class
+     *
+     * @param HeaderInterface[] $headers
+     */
+    public function __construct(iterable $headers = [])
+    {
+        foreach ($headers as $header) {
+            $this->add($header);
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function add(HeaderInterface $header) : void
-	{
-		$this->headers[] = $header;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function add(HeaderInterface $header) : void
+    {
+        $this->headers[] = $header;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function setToMessage(MessageInterface $message) : MessageInterface
-	{
-		foreach ($this->headers as $header)
-		{
-			$message = $header->setToMessage($message);
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function setToMessage(MessageInterface $message) : MessageInterface
+    {
+        foreach ($this->headers as $header) {
+            $message = $header->setToMessage($message);
+        }
 
-		return $message;
-	}
+        return $message;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function addToMessage(MessageInterface $message) : MessageInterface
-	{
-		foreach ($this->headers as $header)
-		{
-			$message = $header->addToMessage($message);
-		}
+    /**
+     * {@inheritDoc}
+     */
+    public function addToMessage(MessageInterface $message) : MessageInterface
+    {
+        foreach ($this->headers as $header) {
+            $message = $header->addToMessage($message);
+        }
 
-		return $message;
-	}
+        return $message;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function toArray() : array
-	{
-		$headers = [];
+    /**
+     * {@inheritDoc}
+     */
+    public function toArray() : array
+    {
+        $headers = [];
+        foreach ($this->headers as $header) {
+            $name = $header->getFieldName();
+            $value = $header->getFieldValue();
 
-		foreach ($this->headers as $header)
-		{
-			$name = $header->getFieldName();
-			$value = $header->getFieldValue();
+            $headers[$name][] = $value;
+        }
 
-			$headers[$name][] = $value;
-		}
+        return $headers;
+    }
 
-		return $headers;
-	}
+    /**
+     * Gets the number of headers in the collection
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->headers);
+    }
 
-	/**
-	 * Gets the number of headers in the collection
-	 *
-	 * @return int
-	 */
-	public function count()
-	{
-		return count($this->headers);
-	}
-
-	/**
-	 * Gets an external iterator
-	 *
-	 * @return ArrayIterator
-	 */
-	public function getIterator()
-	{
-		return new ArrayIterator($this->headers);
-	}
+    /**
+     * Gets an external iterator
+     *
+     * @return ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->headers);
+    }
 }

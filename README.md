@@ -1,7 +1,7 @@
-## HTTP Header Collection for PHP 7.1+ based on PSR-7
+## HTTP header collection for PHP 7.1+ (incl. PHP 8) based on PSR-7
 
 [![Gitter](https://badges.gitter.im/sunrise-php/support.png)](https://gitter.im/sunrise-php/support)
-[![Build Status](https://api.travis-ci.com/sunrise-php/http-header-collection.svg?branch=master)](https://travis-ci.com/sunrise-php/http-header-collection)
+[![Build Status](https://scrutinizer-ci.com/g/sunrise-php/http-header-collection/badges/build.png?b=master)](https://scrutinizer-ci.com/g/sunrise-php/http-header-collection/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/sunrise-php/http-header-collection/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/sunrise-php/http-header-collection/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/sunrise-php/http-header-collection/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/sunrise-php/http-header-collection/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/sunrise/http-header-collection/v/stable)](https://packagist.org/packages/sunrise/http-header-collection)
@@ -46,10 +46,6 @@ https://github.com/sunrise-php/http-header-kit
 ```bash
 php vendor/bin/phpunit
 ```
-
-## Api documentation
-
-https://phpdoc.fenric.ru/
 
 ## Useful links
 
